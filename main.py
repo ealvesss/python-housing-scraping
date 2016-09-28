@@ -1,6 +1,10 @@
 from bs4 import BeautifulSoup
 import requests
 import json
+from util import HousingEncoder, HousingModel
+
+
+
 
 url = 'http://www.au.dk/en/internationalcentre/housing/housingsite/housing-for-rent/?user=ichousing&pass=1qaz&submit=Login&logintype=login&pid=1425505&redirect_url=&tx_felogin_pi1%5Bnoredirect%5D=0'
 
@@ -14,9 +18,8 @@ houses = soup.findAll("div", { "class" : "csc-default" })
 i=1
 total=1
 
-houseList = list()
-detailList = list()
-imgList = list()
+houseList = []
+h = HousingModel()
 
 for house in houses:	
 	title = house.findAll("h1")
@@ -25,7 +28,7 @@ for house in houses:
 	if title:	
 		i+=1
 		if i > 3:
-			detailList.append({'Title':title[0].text})
+			h.houseTitle = title[0].text
 			
 			if len(tbody) > 1:
 				tds = tbody[1].findAll("td")
@@ -39,46 +42,48 @@ for house in houses:
 				if row % 2 == 0:
 					#detailList.append(td.text)
 					if row == 2:
-						detailList.append({'Type': td.text})
+						h.type = td.text
 					elif row == 4:
-						detailList.append({'Period': td.text})
+					 	h.period = td.text
 					elif row == 6:
-						detailList.append({'Address': td.text})
+						h.address = td.text
 					elif row == 8:
-						detailList.append({'Size': td.text})
+					 	h.size = td.text
 					elif row == 10:
-						detailList.append({'Rooms': td.text})
+					 	h.rooms = td.text
 					elif row == 12:
-						detailList.append({'Deposit': td.text})
+					 	h.deposit = td.text
 					elif row == 14:
-						detailList.append({'MontlyRent': td.text})
+					 	h.montlyRent = td.text
 					elif row == 16:
-						detailList.append({'PaymentOnAccount': td.text})
+					 	h.paymentOnAccount = td.text
 					elif row == 18:
-						detailList.append({'Furnished': td.text})	
+						h.furnished = td.text
 					elif row == 20:
-						detailList.append({'Smoking': td.text})	
+					 	h.smoking = td.text
 					elif row == 22:
-						detailList.append({'Tenants': td.text})	
+					 	h.tenants = td.text
 					elif row == 24:
-						detailList.append({'AdditionalDescription': td.text})	
+					 	h.additionalDescription = td.text
 					elif row == 26:
-						detailList.append({'Name': td.text})	
+					 	h.name = td.text	
 					elif row == 28:
-						detailList.append({'Phone': td.text})	
+					 	h.phone = td.text	
 					elif row == 30:
-						detailList.append({'Email': td.text})		
+					 	h.email = td.text
 				if not td.text == "Contact information":
 					row+=1
 					
 			for img in house.findAll("li", {"class" : "csc-textpic-image csc-textpic-lastcol"}):
-				imgList.append("http://www.au.dk/" + str(img.find("a")["href"]))
+				h.images += "http://www.au.dk/" + str(img.find("a")["href"]) + ";"
 			total+=1
-			detailList.append(imgList)
-			houseList.append(detailList)
-			detailList = list()
-			imgList = list()
+		
+			houseList.append(h)
+			h = HousingModel()
+			detailList = []
+		
+			
 
-
-r = requests.put('https://aarhus-housing-5b057.firebaseio.com//aarhus-housing.json',data=str(json.dumps(houseList)))
+r = requests.put('https://aarhus-housing-5b057.firebaseio.com/housing.json',data=json.dumps(houseList,cls=HousingEncoder))
 print r
+
