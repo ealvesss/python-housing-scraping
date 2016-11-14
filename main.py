@@ -6,7 +6,7 @@ from util import HousingEncoder, HousingModel
 
 
 
-url = 'http://www.au.dk/en/internationalcentre/housing/housingsite/housing-for-rent/?user=ichousing&pass=1qaz&submit=Login&logintype=login&pid=1425505&redirect_url=&tx_felogin_pi1%5Bnoredirect%5D=0'
+url = 'http://www.au.dk/en/internationalcentre/housing/housingsite/housing-for-rent/?user=xxx&pass=xxx&submit=Login&logintype=login&pid=1425505&redirect_url=&tx_felogin_pi1%5Bnoredirect%5D=0'
 
 
 response = requests.get(url)
